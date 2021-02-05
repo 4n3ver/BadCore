@@ -1,6 +1,6 @@
 # BadCore
 
-[Enter useful description for BadCore]
+It's bad. Do not use.
 
 ---
 
@@ -11,7 +11,7 @@ GitHub Actions |
 [![GitHub Actions](https://github.com/4n3ver/BadCore/workflows/Build%20master/badge.svg)](https://github.com/4n3ver/BadCore/actions?query=branch%3Amaster) |
 [![Build History](https://buildstats.info/github/chart/4n3ver/BadCore)](https://github.com/4n3ver/BadCore/actions?query=branch%3Amaster) |
 
-## NuGet 
+## NuGet
 
 Package | Stable | Prerelease
 --- | --- | ---
@@ -161,5 +161,3 @@ macOS/Linux Environment Variable:
 ```sh
 RELEASE_VERSION=0.2.0 ./build.sh Release
 ```
-
-

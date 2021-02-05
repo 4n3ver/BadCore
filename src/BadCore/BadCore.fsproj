@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFrameworks>net5.0</TargetFrameworks>
@@ -6,17 +6,30 @@
   <PropertyGroup>
     <Title>BadCore</Title>
     <Description>BadCore does the thing!</Description>
-
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)'=='Release'">
     <Optimize>true</Optimize>
     <Tailcalls>true</Tailcalls>
-    
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="Extensions/Option.fs" />
+    <Compile Include="Extensions/List.fs" />
+    <Compile Include="Extensions/Seq.fs" />
+    <Compile Include="Extensions/Async.fs" />
+    <Compile Include="Extensions/Result.fs" />
+    <Compile Include="Extensions/Array2D.fs" />
+    <Compile Include="Control/AsyncResult.fs" />
+    <Compile Include="Control\AsyncSeq.fs" />
+    <Compile Include="Collections/Pair.fs" />
+    <Compile Include="Collections/DirectedGraph.fs" />
+    <Compile Include="Function.fs" />
+    <Compile Include="Parser.fs" />
+    <Compile Include="Text/Regex.fs" />
+    <Compile Include="Text/Parse.fs" />
+    <Compile Include="IO/File.fs" />
+    <Compile Include="IO/Net/Http.fs" />
     <Compile Include="AssemblyInfo.fs" />
     <Compile Include="Library.fs" />
   </ItemGroup>
   <Import Project="..\..\.paket\Paket.Restore.targets" />
 </Project>
- 
