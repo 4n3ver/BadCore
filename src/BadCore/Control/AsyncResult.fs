@@ -32,6 +32,47 @@ module AsyncResult =
             return Result.apply f x
         }
 
+    let isOk (m: AsyncResult<'a, 'e>): Async<bool> =
+        async {
+            let! m = m
+
+            return
+                match m with
+                | Ok _ -> true
+                | Error _ -> false
+        }
+
+    let isError (m: AsyncResult<'a, 'e>): Async<bool> =
+        async {
+            let! m = m
+
+            return
+                match m with
+                | Ok _ -> false
+                | Error _ -> true
+        }
+
+    let ignoreError (m: AsyncResult<'a, 'e>): Async<'a option> =
+        async {
+            let! m = m
+
+            return
+                match m with
+                | Ok a -> Some a
+                | Error _ -> None
+        }
+
+
+    let get (m: AsyncResult<'a, 'e>): Async<'a> =
+        async {
+            let! m = m
+
+            return
+                match m with
+                | Ok a -> a
+                | Error e -> invalidArg "result" $"Cannot obtain value due to error: {e}"
+        }
+
     // Derived
     let (<!>) = map
     let (<*>) = apply
@@ -99,10 +140,9 @@ module AsyncResultComputationExpression =
         member __.Run(f) = f ()
 
         member this.While(guard, body) =
-            if not (guard ()) then
-                this.Zero()
-            else
-                this.Bind(body (), (fun () -> this.While(guard, body)))
+            if not (guard ())
+            then this.Zero()
+            else this.Bind(body (), (fun () -> this.While(guard, body)))
 
         member this.TryWith(body, handler) =
             try
@@ -118,19 +158,17 @@ module AsyncResultComputationExpression =
         member this.Using(disposable: #System.IDisposable, body) =
             let body' = fun () -> body disposable
 
-            this.TryFinally(
-                body',
-                (fun () ->
-                    match disposable with
-                    | null -> ()
-                    | disp -> disp.Dispose())
-            )
+            this.TryFinally
+                (body',
+                 (fun () ->
+                     match disposable with
+                     | null -> ()
+                     | disp -> disp.Dispose()))
 
         member this.For(sequence: seq<_>, body) =
-            this.Using(
-                sequence.GetEnumerator(),
-                (fun enum -> this.While(enum.MoveNext, this.Delay(fun () -> body enum.Current)))
-            )
+            this.Using
+                (sequence.GetEnumerator(),
+                 (fun enum -> this.While(enum.MoveNext, this.Delay(fun () -> body enum.Current))))
 
         member this.Combine(a, b) = this.Bind(a, (fun () -> b ()))
 

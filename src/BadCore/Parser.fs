@@ -1,17 +1,42 @@
 namespace BadCore
 
-open System
 
 type ErrorMessage = string
 type ParserLabel = string
 type ParserError = { Label: ParserLabel; Messages: ErrorMessage list }
+
 
 [<Struct>]
 type Parser<'a> =
     private { Parse: string -> Result<'a * string, ParserError>; Label: ParserLabel }
 
 module Parser =
+    open System
     open BadCore.Extensions
+
+    [<Struct>]
+    type private Position = { Line: int; Column: int }
+
+    module private Position =
+        let initial = { Line = 0; Column = 0 }
+        let incrementColumn position = { position with Column = position.Column + 1 }
+        let incrementLine position = { position with Line = position.Line + 1 }
+
+    type private InputState = { Lines: string array; Position: Position }
+
+    module private InputState =
+        let lineSeparators = [| "\r\n"; "\n"; "\r"; "\r\n" |]
+
+        let create str =
+            if String.IsNullOrEmpty(str) then
+                { Lines = [||]; Position = Position.initial }
+            else
+                { Lines = str.Split(lineSeparators, StringSplitOptions.None); Position = Position.initial }
+
+        // let nextChar inputState =
+        //     match inputState with
+        //     | { Lines = [||]; } -> inputState
+        //     | { Lines = lines; Position = position } -> lines
 
     let private printResult (result: Result<'a * string, ParserError>): unit =
         match result with

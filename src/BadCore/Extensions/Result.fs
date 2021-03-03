@@ -16,6 +16,16 @@ module Result =
         | Error e, _
         | _, Error e -> Error e
 
+    let isOk (m: Result<'a, 'e>): bool =
+        match m with
+        | Ok _ -> true
+        | Error _ -> false
+
+    let isError (m: Result<'a, 'e>): bool =
+        match m with
+        | Ok _ -> false
+        | Error _ -> true
+
     let ignoreError (m: Result<'a, 'e>): 'a option =
         match m with
         | Ok a -> Some a

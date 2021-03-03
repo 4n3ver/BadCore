@@ -1,10 +1,10 @@
 namespace BadCore.Text
 
-module Parse =
-    open System
-    open System.Numerics
-    open BadCore.Extensions
+open System
+open System.Numerics
+open BadCore.Extensions
 
+module Parse =
     let private tryParse fn str =
         try
             Ok(fn str)

@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFrameworks>net5.0</TargetFrameworks>
+    <TargetFramework>net5.0</TargetFramework>
   </PropertyGroup>
   <PropertyGroup>
     <Title>BadCore</Title>
@@ -18,18 +18,27 @@
     <Compile Include="Extensions/Async.fs" />
     <Compile Include="Extensions/Result.fs" />
     <Compile Include="Extensions/Array2D.fs" />
+    <Compile Include="Extensions/String.fs" />
     <Compile Include="Control/AsyncResult.fs" />
-    <Compile Include="Control\AsyncSeq.fs" />
+    <Compile Include="Control/AsyncSeq.fs" />
     <Compile Include="Collections/Pair.fs" />
     <Compile Include="Collections/DirectedGraph.fs" />
     <Compile Include="Function.fs" />
     <Compile Include="Parser.fs" />
     <Compile Include="Text/Regex.fs" />
     <Compile Include="Text/Parse.fs" />
+    <Compile Include="Text/Base64.fs" />
+    <Compile Include="Text/Json/JsonElement.fs" />
     <Compile Include="IO/File.fs" />
     <Compile Include="IO/Net/Http.fs" />
+    <Compile Include="Security/Cryptography/SHA256.fs" />
+    <Compile Include="Security/Cryptography/RandomNumberGenerator.fs" />
+    <Compile Include="Nokia/Gateway/Common.fs" />
+    <Compile Include="Nokia/Gateway/Auth.fs" />
+    <Compile Include="Nokia/Gateway/System.fs" />
+    <Compile Include="Nokia/Gateway/Radio.fs" />
     <Compile Include="AssemblyInfo.fs" />
     <Compile Include="Library.fs" />
   </ItemGroup>
-  <Import Project="..\..\.paket\Paket.Restore.targets" />
+  <Import Project="../../.paket/Paket.Restore.targets" />
 </Project>
