@@ -9,11 +9,12 @@ open BadCore.Nokia
 module Radio =
     [<Struct>]
     type SignalStatus =
-        { PhysicalCellID: uint64
+        { PhysicalCellID: string
           SNR: int
           RSRP: int
           RSRQ: int
           RSRPStrengthIndex: int
+          SignalStrengthLevel: int
           Band: string }
 
     [<Struct>]
@@ -28,7 +29,7 @@ module Radio =
             { PhysicalCellID =
                   json
                   |> JsonElement.getProperty "PhysicalCellID"
-                  |> JsonElement.getUInt64
+                  |> JsonElement.getString
               SNR =
                   json
                   |> JsonElement.getProperty "SNRCurrent"
@@ -44,6 +45,10 @@ module Radio =
               RSRPStrengthIndex =
                   json
                   |> JsonElement.getProperty "RSRPStrengthIndexCurrent"
+                  |> JsonElement.getInt
+              SignalStrengthLevel =
+                  json
+                  |> JsonElement.getProperty "SignalStrengthLevel"
                   |> JsonElement.getInt
               Band =
                   json

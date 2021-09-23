@@ -18,8 +18,7 @@ module Auth =
           Sid: string
           Lsid: string
           Token: string
-          IsCtcAdmin: bool
-          PasswordChangeSecureFlag: bool }
+          IsCtcAdmin: bool }
 
     [<Struct>]
     type Nonce =
@@ -101,7 +100,10 @@ module Auth =
             let json = JsonElement.deserialize body
 
             let result =
-                json.GetProperty("result").GetInt32() = 0
+                json
+                |> JsonElement.getProperty "result"
+                |> JsonElement.getInt
+                |> (=) 0
 
             let lsidCookie =
                 HttpCookies.create response
@@ -122,14 +124,10 @@ module Auth =
                           |> JsonElement.getString
                       IsCtcAdmin =
                           json
-                          |> JsonElement.getProperty "pswd_chng_scr_flg"
-                          |> JsonElement.getInt = 1
-                      PasswordChangeSecureFlag =
-                          json
                           |> JsonElement.getProperty "is_ctc_admin"
                           |> JsonElement.getInt = 1 }
             else
-                Error(AuthError(sprintf "%A" response))
+                Error(AuthError $"%A{response}")
 
         let getResponseBody response =
             response
