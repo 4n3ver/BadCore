@@ -38,12 +38,13 @@
         <Compile Include="Text/Parser/ParserState.fs"/>
         <Compile Include="Text/Parser/ParserResult.fs"/>
         <Compile Include="Text/Parser/Parser.fs"/>
+        <Compile Include="Text/Json/JsonElementError.fs"/>
         <Compile Include="Text/Json/JsonElement.fs"/>
         <Compile Include="Text/Json/JsonParser.fs"/>
         <Compile Include="IO/File.fs"/>
-        <Compile Include="IO/Net/Http/HttpError.fs"/>
         <Compile Include="IO/Net/Http/HttpCookies.fs"/>
         <Compile Include="IO/Net/Http/HttpContent.fs"/>
+        <Compile Include="IO/Net/Http/HttpError.fs"/>
         <Compile Include="IO/Net/Http/Http.fs"/>
         <Compile Include="Security/Cryptography/SHA256.fs"/>
         <Compile Include="Security/Cryptography/RandomNumberGenerator.fs"/>

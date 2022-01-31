@@ -2,10 +2,12 @@
 
 open System
 open BadCore.IO.Net
+open BadCore.Text.Json
 
 type Error =
     | HttpError of HttpError
     | AuthError of string
+    | ResponseError of JsonElementError
 
 [<AutoOpen>]
 module Common =

@@ -2,6 +2,7 @@
 
 open System.Net.Http
 open System.Text
+open System.Text.Json
 open BadCore.Extensions
 open BadCore.Collections
 open BadCore.Control
@@ -67,9 +68,7 @@ module Auth =
     let getNonce (): AsyncResult<Nonce, Gateway.Error> =
         let (>>=) = AsyncResult.op_GreaterGreaterEquals
 
-        let parseResponse (body: string) =
-            let json = JsonElement.deserialize body
-
+        let parseResponse json =
             Ok
                 { Nonce =
                       json
@@ -84,7 +83,11 @@ module Auth =
                       |> JsonElement.getProperty "pubkey"
                       |> JsonElement.getString }
 
-        let getResponseBody = parseResponse >> Async.unit
+        let getResponseBody =
+            JsonElement.deserialize
+            >> Result.mapError ResponseError
+            >> Result.bind parseResponse
+            >> Async.unit
 
         let get =
             Http.getString
@@ -96,9 +99,7 @@ module Auth =
     let getToken (Form form: Form): AsyncResult<Token, Gateway.Error> =
         let (>>=) = AsyncResult.op_GreaterGreaterEquals
 
-        let parseResponse (response: HttpResponseMessage) (body: string) =
-            let json = JsonElement.deserialize body
-
+        let parseResponse response json =
             let result =
                 json
                 |> JsonElement.getProperty "result"
@@ -131,8 +132,9 @@ module Auth =
 
         let getResponseBody response =
             response
-            |> HttpContent.readContentAsString
-            |> Async.map (parseResponse response)
+            |> HttpContent.readContentAsJson
+            |> AsyncResult.mapError ResponseError
+            |> Async.map (Result.bind (parseResponse response))
 
         let post uri =
             Http.post uri
