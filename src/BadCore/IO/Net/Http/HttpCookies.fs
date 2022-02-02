@@ -11,9 +11,12 @@ type Cookie =
 
 module private Cookie =
     let create (props: (string * string) seq) : Cookie =
+        let ignoreCase (attrKey: string) ((key, _): string * string) =
+            key.ToLower() = attrKey.ToLower()
+
         let getAttributeValue attrKey =
             props
-            |> Seq.tryFind (fst >> (=) attrKey)
+            |> Seq.tryFind (ignoreCase attrKey)
             |> Option.map snd
 
         let (key, value) = Seq.head props

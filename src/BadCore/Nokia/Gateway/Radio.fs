@@ -55,9 +55,7 @@ module Radio =
                   |> JsonElement.getProperty "Band"
                   |> JsonElement.getString }
 
-        let parseResponse body =
-            let json = JsonElement.deserialize body
-
+        let parseResponse json =
             let cellLteStatArray =
                 json
                 |> JsonElement.getProperty "cell_LTE_stats_cfg"
@@ -86,8 +84,9 @@ module Radio =
                   Cell5GStatus = parseRadioStatus cell5gStat }
 
         let getResponseBody =
-            HttpContent.readContentAsString
-            >> Async.map parseResponse
+            HttpContent.readContentAsJson
+            >> AsyncResult.mapError ResponseError
+            >> Async.map (Result.bind parseResponse)
 
         let get =
             Http.get >> AsyncResult.mapError HttpError

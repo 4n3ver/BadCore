@@ -1,10 +1,13 @@
 ﻿namespace BadCore.Text.Json
 
-open System.Text.Json
-
 module JsonElement =
-    let deserialize (jsonString: string): JsonElement =
-        JsonSerializer.Deserialize<JsonElement> jsonString
+    open System.Text.Json
+
+    let deserialize (jsonString: string): Result<JsonElement, JsonElementError> =
+        try
+            Ok(JsonSerializer.Deserialize<JsonElement> jsonString)
+        with
+        | :? JsonException as ex -> Error(JsonElementError.from jsonString ex)
 
     let getArray (json: JsonElement): JsonElement seq = seq { yield! json.EnumerateArray() }
 

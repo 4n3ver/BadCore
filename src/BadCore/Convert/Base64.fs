@@ -1,4 +1,4 @@
-﻿namespace BadCore.Text
+﻿namespace BadCore.Convert
 
 type Base64 = private Base64 of string
 
@@ -13,3 +13,8 @@ module Base64 =
 
     let toString (Base64 encoded: Base64) = encoded
 
+    let parse (base64String: string): Result<byte array, FormatError> =
+        try
+            base64String |> Base64 |> decode |> Ok
+        with
+        | :? FormatException as ex -> Error(FormatError ex)
