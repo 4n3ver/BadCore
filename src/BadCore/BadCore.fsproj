@@ -31,7 +31,9 @@
         <Compile Include="Control/State.fs"/>
         <Compile Include="Collections/Pair.fs"/>
         <Compile Include="Collections/DirectedGraph.fs"/>
-        <Compile Include="Text/Base64.fs"/>
+        <Compile Include="Convert/FormatError.fs"/>
+        <Compile Include="Convert/Hex.fs"/>
+        <Compile Include="Convert/Base64.fs"/>
         <Compile Include="Text/Parse.fs"/>
         <Compile Include="Text/Regex.fs"/>
         <Compile Include="Text/Parser/ParserPosition.fs"/>

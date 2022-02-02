@@ -4,10 +4,10 @@ open System
 open System.Text.Json
 
 type JsonElementError =
-    | InvalidJsonError of JsonException
+    | InvalidJsonError of string * JsonException
 
 module private JsonElementError =
-    let from (ex: Exception) : JsonElementError =
+    let from (jsonString: string) (ex: Exception) : JsonElementError =
         match ex with
-        | :? JsonException as ex -> InvalidJsonError ex
+        | :? JsonException as ex -> InvalidJsonError (jsonString, ex)
         | _ -> raise ex

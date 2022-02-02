@@ -1,12 +1,10 @@
 ﻿namespace BadCore.Nokia.Gateway
 
-open System.Net.Http
 open System.Text
-open System.Text.Json
 open BadCore.Extensions
 open BadCore.Collections
 open BadCore.Control
-open BadCore.Text
+open BadCore.Convert
 open BadCore.IO.Net
 open BadCore.Security.Cryptography
 open BadCore.Text.Json
@@ -23,7 +21,8 @@ module Auth =
 
     [<Struct>]
     type Nonce =
-        { Nonce: string
+        { Iterations: int
+          Nonce: string
           RandomKey: string
           PublicKey: string }
 
@@ -41,9 +40,32 @@ module Auth =
 
             Seq.map escape >> String.ofChars
 
-        let create (username: string) (password: string) (nonce: Nonce): Form =
-            let hash (str: string) =
-                Encoding.UTF8.GetBytes str
+        let private iterate iterations (value: string) =
+            let hash =
+                SHA256.hash >> Hex.encode >> Hex.toString
+
+            let value =
+                if iterations >= 1 then
+                    value |> Encoding.UTF8.GetBytes |> hash
+                else
+                    value
+
+            let rec iter i hashed =
+                if i < iterations then
+                    let r =
+                        hashed |> Hex.parse |> Result.get |> hash
+
+                    iter (i + 1) r
+                else
+                    hashed.ToLower()
+
+            iter 1 value
+
+
+        let create (username: string) (password: string) (nonce: Nonce) : Form =
+            let hash str1 str2 =
+                $"%s{str1}:%s{str2}"
+                |> Encoding.UTF8.GetBytes
                 |> SHA256.hash
                 |> Base64.encode
                 |> Base64.toString
@@ -53,24 +75,30 @@ module Auth =
                 >> Base64.encode
                 >> Base64.toString
 
-            let credentialHash = hash $"{username}:{password}"
+            let password = password |> iterate nonce.Iterations
+
+            let credentialHash = hash username password
 
             let form =
-                [ ("userhash", hash $"{username}:{nonce.Nonce}")
-                  ("RandomKeyhash", hash $"{nonce.RandomKey}:{nonce.Nonce}")
-                  ("response", hash $"{credentialHash}:{nonce.Nonce}")
+                [ ("userhash", hash username nonce.Nonce)
+                  ("RandomKeyhash", hash nonce.RandomKey nonce.Nonce)
+                  ("response", hash credentialHash nonce.Nonce)
                   ("nonce", nonce.Nonce)
                   ("enckey", randomByteString 16)
                   ("enciv", randomByteString 16) ]
 
             form |> List.map (Pair.mapSnd urlEscape) |> Form
 
-    let getNonce (): AsyncResult<Nonce, Gateway.Error> =
+    let getNonce () : AsyncResult<Nonce, Gateway.Error> =
         let (>>=) = AsyncResult.op_GreaterGreaterEquals
 
         let parseResponse json =
             Ok
-                { Nonce =
+                { Iterations =
+                      json
+                      |> JsonElement.getProperty "iterations"
+                      |> JsonElement.getInt
+                  Nonce =
                       json
                       |> JsonElement.getProperty "nonce"
                       |> JsonElement.getString
@@ -90,13 +118,12 @@ module Auth =
             >> Async.unit
 
         let get =
-            Http.getString
-            >> AsyncResult.mapError HttpError
+            Http.getString >> AsyncResult.mapError HttpError
 
         get (createUri "/login_web_app.cgi?nonce")
         >>= getResponseBody
 
-    let getToken (Form form: Form): AsyncResult<Token, Gateway.Error> =
+    let getToken (Form form: Form) : AsyncResult<Token, Gateway.Error> =
         let (>>=) = AsyncResult.op_GreaterGreaterEquals
 
         let parseResponse response json =
@@ -106,15 +133,15 @@ module Auth =
                 |> JsonElement.getInt
                 |> (=) 0
 
-            let lsidCookie =
-                HttpCookies.create response
-                |> HttpCookies.get "lsid"
-                |> Option.get
-
             if result then
                 Ok
                     { Result = result
-                      Lsid = lsidCookie.Value
+                      Lsid =
+                          response
+                          |> HttpCookies.create
+                          |> HttpCookies.get "lsid"
+                          |> Option.get
+                          |> (fun c -> c.Value)
                       Sid =
                           json
                           |> JsonElement.getProperty "sid"
@@ -137,13 +164,12 @@ module Auth =
             |> Async.map (Result.bind (parseResponse response))
 
         let post uri =
-            Http.post uri
-            >> AsyncResult.mapError HttpError
+            Http.post uri >> AsyncResult.mapError HttpError
 
         post (createUri "/login_web_app.cgi") (HttpContent.urlEncodedForm form)
         >>= getResponseBody
 
-    let authenticate (username: string) (password: string): AsyncResult<Token, Gateway.Error> =
+    let authenticate (username: string) (password: string) : AsyncResult<Token, Gateway.Error> =
         let (>>=) = AsyncResult.op_GreaterGreaterEquals
 
         let getToken =
