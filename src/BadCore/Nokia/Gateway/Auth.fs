@@ -41,26 +41,16 @@ module Auth =
             Seq.map escape >> String.ofChars
 
         let private iterate iterations (value: string) =
-            let hash =
-                SHA256.hash >> Hex.encode >> Hex.toString
-
-            let value =
-                if iterations >= 1 then
-                    value |> Encoding.UTF8.GetBytes |> hash
-                else
-                    value
-
-            let rec iter i hashed =
+            let rec iter i bytes =
                 if i < iterations then
-                    let r =
-                        hashed |> Hex.parse |> Result.get |> hash
-
-                    iter (i + 1) r
+                    iter (i + 1) (SHA256.hash bytes)
                 else
-                    hashed.ToLower()
+                    (bytes |> Hex.encode |> Hex.toString).ToLower()
 
-            iter 1 value
-
+            if iterations >= 1 then
+                iter 0 (value |> Encoding.UTF8.GetBytes)
+            else
+                value.ToLower()
 
         let create (username: string) (password: string) (nonce: Nonce) : Form =
             let hash str1 str2 =
