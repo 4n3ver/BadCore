@@ -15,7 +15,6 @@ module Auth =
     type Token =
         { Result: bool
           Sid: string
-          Lsid: string
           Token: string
           IsCtcAdmin: bool }
 
@@ -126,12 +125,6 @@ module Auth =
             if result then
                 Ok
                     { Result = result
-                      Lsid =
-                          response
-                          |> HttpCookies.create
-                          |> HttpCookies.get "lsid"
-                          |> Option.get
-                          |> (fun c -> c.Value)
                       Sid =
                           json
                           |> JsonElement.getProperty "sid"
