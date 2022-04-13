@@ -24,7 +24,7 @@ module System =
         request.Method <- HttpMethod.Post
         request.RequestUri <- createUri "/reboot_web_app.cgi"
         request.Content <- HttpContent.urlEncodedForm [ ("csrf_token", authToken.Token) ]
-        request.Headers.Add("Cookie", [ $"sid={authToken.Sid}; lsid={authToken.Lsid}" ])
+        request.Headers.Add("Cookie", [ $"sid={authToken.Sid}" ])
 
         let getResponseBody response =
             response

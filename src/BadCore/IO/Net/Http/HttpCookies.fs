@@ -31,11 +31,11 @@ module private Cookie =
     let parse (cookieVal: string) : Cookie =
         let parseKVPair (str: string) =
             match str.Split '=' with
-            | [| key; value |] -> key, value
-            | [| key |] -> key, "true"
+            | [| key; value |] -> key.Trim(), value.Trim()
+            | [| key |] -> key.Trim(), "true"
             | _ -> failwithf $"Unexpected cookie format %A{str}"
 
-        cookieVal.Split "; "
+        cookieVal.Split ";"
         |> Seq.map parseKVPair
         |> create
 
