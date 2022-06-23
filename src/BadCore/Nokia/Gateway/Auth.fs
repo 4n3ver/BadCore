@@ -15,8 +15,7 @@ module Auth =
     type Token =
         { Result: bool
           Sid: string
-          Token: string
-          IsCtcAdmin: bool }
+          Token: string }
 
     [<Struct>]
     type Nonce =
@@ -132,11 +131,7 @@ module Auth =
                       Token =
                           json
                           |> JsonElement.getProperty "token"
-                          |> JsonElement.getString
-                      IsCtcAdmin =
-                          json
-                          |> JsonElement.getProperty "is_ctc_admin"
-                          |> JsonElement.getInt = 1 }
+                          |> JsonElement.getString }
             else
                 Error(AuthError $"%A{response}")
 
